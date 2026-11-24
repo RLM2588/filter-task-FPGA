@@ -1,0 +1,24 @@
+# Папки с кэшем, симуляцией и временными файлами
+lab12.cache/
+lab12.hw/
+lab12.sim/
+lab12.ip_user_files/
+lab12.runs/
+lab12.gen/
+
+# На случай, если создашь другие проекты, используем маски
+*.cache/
+*.hw/
+*.sim/
+*.ip_user_files/
+*.runs/
+*.gen/
+
+# Журналы и логи Vivado
+*.jou
+*.log
+*.str
+
+# Системный мусор
+.DS_Store
+Thumbs.db
