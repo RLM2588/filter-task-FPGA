@@ -1,24 +1,29 @@
 `timescale 1ns / 1ps
 
-module filterTap #(
+module filterTap #( // Только для Баркера
         parameter int INP_WIDTH = 16,
         parameter int SUM_WIDTH = 20,
-        parameter int KFF_WIDTH = 2,
-        parameter int DELAY     = 2
+        parameter int DELAY     = 2 ,
+        parameter int KOEFF     = 1
     ) (
-        input  logic                        clk,
-        input  logic signed [INP_WIDTH-1:0] i_smpl,
-        input  logic                        i_smpl_v,
-        input  logic signed [KFF_WIDTH-1:0] i_koeff,
+        input  logic                        clk      ,
+        input  logic signed [INP_WIDTH-1:0] i_smpl   ,
+        input  logic                        i_smpl_v ,
         input  logic signed [SUM_WIDTH-1:0] i_prevTap,
         output logic signed [SUM_WIDTH-1:0] o_nextTap 
     );
-    localparam int FULL_SUM_WIDTH = (INP_WIDTH + KFF_WIDTH) + 1;
+    localparam int FULL_SUM_WIDTH = (INP_WIDTH + 1) + 1;
     
-    logic signed [FULL_SUM_WIDTH-1:0] mac;
+    logic signed [FULL_SUM_WIDTH-1:0] mac ;
     logic signed [SUM_WIDTH-1:0]      dout;
     
-    assign mac = i_smpl * i_koeff + i_prevTap;
+    generate
+        if(KOEFF) begin
+            assign mac = ~{i_smpl[INP_WIDTH-1], i_smpl} + 1 + i_prevTap;
+        end else begin
+            assign mac = i_smpl + i_prevTap;
+        end
+    endgenerate
     
     always_comb begin : comb_MAC
         if(FULL_SUM_WIDTH <= SUM_WIDTH) begin

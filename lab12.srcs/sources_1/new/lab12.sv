@@ -3,8 +3,6 @@
 module lab12 #(
         parameter int INP_WIDTH = 16,
         parameter int SUM_WIDTH = 20,
-        parameter int KFF_COUNT = 11,
-        parameter int KFF_WIDTH = 2 ,
         parameter int DELAY     = 2 
     ) (
         input  logic                        clk     ,
@@ -15,17 +13,17 @@ module lab12 #(
         output logic signed [INP_WIDTH-1:0] o_q     ,
         output logic                        o_data_v
     );
-    logic signed [KFF_WIDTH-1:0] rom    [0:KFF_COUNT-1];
+    localparam int KFF_COUNT = 11;
+    
+    localparam logic             rom    [0:KFF_COUNT-1] = '{
+        1'b0, 1'b0, 1'b0, 1'b1, 1'b1, 1'b1, 1'b0, 1'b1, 1'b1, 1'b0, 1'b1 
+    }; // 0 -> +1; 1 -> -1;
+    
     logic signed [SUM_WIDTH-1:0] taps_i [0:KFF_COUNT-1];
     logic signed [SUM_WIDTH-1:0] taps_q [0:KFF_COUNT-1];
     
     assign o_i = taps_i[KFF_COUNT-1];
     assign o_q = taps_q[KFF_COUNT-1];
-    
-    initial begin
-        rom[0] = 2'b01;
-        // TODO: other koeffs
-    end
     
     generate // FOR I
         for (genvar i = 0; i < KFF_COUNT; i++) begin
@@ -33,29 +31,27 @@ module lab12 #(
                 filterTap #(
                     .INP_WIDTH(INP_WIDTH),
                     .SUM_WIDTH(SUM_WIDTH),
-                    .KFF_WIDTH(KFF_WIDTH),
-                    .DELAY    (DELAY    )
+                    .DELAY    (DELAY    ),
+                    .KOEFF    (rom[i]   )
                 ) u_tap_i (
                     .clk      (clk      ),
                     .i_smpl   (i_i      ),
                     .i_smpl_v (i_data_v ),
-                    .i_koeff  (rom[i]   ),
                     .i_prevTap('0       ),
                     .o_nextTap(taps_i[i])
                 );
             end else begin : gen_other_tap
                 filterTap #(
-                    .INP_WIDTH (INP_WIDTH),
-                    .SUM_WIDTH (SUM_WIDTH),
-                    .KFF_WIDTH (KFF_WIDTH),
-                    .DELAY     (DELAY    )
+                    .INP_WIDTH(INP_WIDTH),
+                    .SUM_WIDTH(SUM_WIDTH),
+                    .DELAY    (DELAY    ),
+                    .KOEFF    (rom[i]   )
                 ) u_tap_i (
-                    .clk       (clk        ),
-                    .i_smpl    (i_i        ),
-                    .i_smpl_v  (i_data_v   ),
-                    .i_koeff   (rom[i]     ),
-                    .i_prevTap (taps_i[i-1]),
-                    .o_nextTap (taps_i[i]  )
+                    .clk      (clk        ),
+                    .i_smpl   (i_i        ),
+                    .i_smpl_v (i_data_v   ),
+                    .i_prevTap(taps_i[i-1]),
+                    .o_nextTap(taps_i[i]  )
                 );
             end
         end
@@ -67,29 +63,27 @@ module lab12 #(
                 filterTap #(
                     .INP_WIDTH(INP_WIDTH),
                     .SUM_WIDTH(SUM_WIDTH),
-                    .KFF_WIDTH(KFF_WIDTH),
-                    .DELAY    (DELAY    )
-                ) u_tap_q (
+                    .DELAY    (DELAY    ),
+                    .KOEFF    (rom[i]   )
+                ) u_tap_i (
                     .clk      (clk      ),
                     .i_smpl   (i_q      ),
                     .i_smpl_v (i_data_v ),
-                    .i_koeff  (rom[i]   ),
                     .i_prevTap('0       ),
                     .o_nextTap(taps_q[i])
                 );
             end else begin : gen_other_tap
                 filterTap #(
-                    .INP_WIDTH (INP_WIDTH),
-                    .SUM_WIDTH (SUM_WIDTH),
-                    .KFF_WIDTH (KFF_WIDTH),
-                    .DELAY     (DELAY    )
-                ) u_tap_q (
-                    .clk       (clk        ),
-                    .i_smpl    (i_q        ),
-                    .i_smpl_v  (i_data_v   ),
-                    .i_koeff   (rom[i]     ),
-                    .i_prevTap (taps_q[i-1]),
-                    .o_nextTap (taps_q[i]  )
+                    .INP_WIDTH(INP_WIDTH),
+                    .SUM_WIDTH(SUM_WIDTH),
+                    .DELAY    (DELAY    ),
+                    .KOEFF    (rom[i]   )
+                ) u_tap_i (
+                    .clk      (clk        ),
+                    .i_smpl   (i_q        ),
+                    .i_smpl_v (i_data_v   ),
+                    .i_prevTap(taps_q[i-1]),
+                    .o_nextTap(taps_q[i]  )
                 );
             end
         end
@@ -97,7 +91,7 @@ module lab12 #(
     
     delay #(
         .DATA_WIDTH (1    ),
-        .DELAY      (DELAY)
+        .DELAY      (DELAY) // (DELAY + KFF_COUNT)
     ) u_delay (
         .clk    (clk     ),
         .i_data (i_data_v),
