@@ -12,14 +12,14 @@ module filterTap #( // Только для Баркера
         input  logic signed [SUM_WIDTH-1:0] i_prevTap,
         output logic signed [SUM_WIDTH-1:0] o_nextTap 
     );
-    localparam int FULL_SUM_WIDTH = (INP_WIDTH + 1) + 1;
+    localparam int FULL_SUM_WIDTH = (INP_WIDTH < SUM_WIDTH) ? (SUM_WIDTH + 1) : (INP_WIDTH + 1) + 1;
     
     logic signed [FULL_SUM_WIDTH-1:0] mac ;
     logic signed [SUM_WIDTH-1:0]      dout;
     
     generate
         if(KOEFF) begin
-            assign mac = ~{i_smpl[INP_WIDTH-1], i_smpl} + 1 + i_prevTap;
+            assign mac = $signed(~{i_smpl[INP_WIDTH-1], i_smpl}) + 1 + i_prevTap;
         end else begin
             assign mac = i_smpl + i_prevTap;
         end
@@ -30,7 +30,7 @@ module filterTap #( // Только для Баркера
             dout = mac;
         end else begin
 //            dout = mac[SUM_WIDTH-1:0]; // без насыщения
-            if (|mac[FULL_SUM_WIDTH-1:SUM_WIDTH]) begin // насыщение
+            if (((~mac[FULL_SUM_WIDTH-1]) & (|mac[FULL_SUM_WIDTH-2:SUM_WIDTH])) | (mac[FULL_SUM_WIDTH-1] & (~&mac[FULL_SUM_WIDTH-2:SUM_WIDTH]))) begin // насыщение ((~sgn) & (|ext_bits)) | (sgn & (~&ext_bits))
                 dout = {mac[FULL_SUM_WIDTH-1], {(SUM_WIDTH-1){~mac[FULL_SUM_WIDTH-1]}}};
             end else begin
                 dout = mac[SUM_WIDTH-1:0];

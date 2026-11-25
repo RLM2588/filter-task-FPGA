@@ -9,8 +9,8 @@ module lab12 #(
         input  logic signed [INP_WIDTH-1:0] i_i     ,
         input  logic signed [INP_WIDTH-1:0] i_q     ,
         input  logic                        i_data_v,
-        output logic signed [INP_WIDTH-1:0] o_i     ,
-        output logic signed [INP_WIDTH-1:0] o_q     ,
+        output logic signed [SUM_WIDTH-1:0] o_i     ,
+        output logic signed [SUM_WIDTH-1:0] o_q     ,
         output logic                        o_data_v
     );
     localparam int KFF_COUNT = 11;
