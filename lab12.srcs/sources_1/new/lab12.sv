@@ -19,6 +19,8 @@ module lab12 #(
         1'b0, 1'b0, 1'b0, 1'b1, 1'b1, 1'b1, 1'b0, 1'b1, 1'b1, 1'b0, 1'b1 
     }; // 0 -> +1; 1 -> -1;
     
+    logic v_del;
+    
     logic signed [SUM_WIDTH-1:0] taps_i [0:KFF_COUNT-1];
     logic signed [SUM_WIDTH-1:0] taps_q [0:KFF_COUNT-1];
     
@@ -95,7 +97,9 @@ module lab12 #(
     ) u_delay (
         .clk    (clk     ),
         .i_data (i_data_v),
-        .en     (1'b1    ),
-        .o_data (o_data_v)
+        .en     (i_data_v),
+        .o_data (v_del   )
     );
+    
+    assign o_data_v = i_data_v & v_del;
 endmodule

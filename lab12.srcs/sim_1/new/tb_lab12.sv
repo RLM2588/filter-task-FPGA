@@ -6,7 +6,9 @@ module tb_lab12();
     localparam int SUM_WIDTH = 20;
     localparam int DELAY     = 2 ;
     
-    localparam int NUM_SAMPLES = 8022;
+    localparam int NUM_SAMPLES = 8022 + 2;
+    localparam int GAP_AT  = 20;
+    localparam int GAP_LEN = 3 ;
     
     logic                        clk  = 1'b0;
     logic signed [INP_WIDTH-1:0] i_i     ;
@@ -34,15 +36,18 @@ module tb_lab12();
     
     logic tb_rst;
     logic tb_rfd;
+
+    logic i_v_i;
+    logic i_v_q;
     
-    logic dout_v;
+    assign i_data_v = i_v_i & i_v_q;
     
     ReadFile #(
         .numOfBits (INP_WIDTH),
         .file_name ("C:/Users/Radiy/Documents/MATLAB/FPGA/lab12/data2fpgaI.dat")
     ) u_read_fileI (
         .data (i_i   ),
-        .dv   (i_data_v),
+        .dv   (i_v_i ),
         .rst  (tb_rst),
         .rfd  (tb_rfd),
         .clk  (clk   )
@@ -63,7 +68,7 @@ module tb_lab12();
         .file_name ("C:/Users/Radiy/Documents/MATLAB/FPGA/lab12/data2fpgaQ.dat")
     ) u_read_fileQ (
         .data (i_q   ),
-        .dv   (i_data_v),
+        .dv   (i_v_q ),
         .rst  (tb_rst),
         .rfd  (tb_rfd),
         .clk  (clk   )
@@ -82,15 +87,24 @@ module tb_lab12();
     initial begin
         tb_rst = 1'b1;
         tb_rfd = 1'b0;
-        
+    
         repeat (2) @(posedge clk);
         tb_rst = 1'b0;
+        
+        @(negedge clk);
         tb_rfd = 1'b1;
-        
-        repeat(NUM_SAMPLES) @(posedge clk);
+        repeat (GAP_AT) @(posedge clk);
+        @(negedge clk);
         tb_rfd = 1'b0;
+        repeat (GAP_LEN) @(posedge clk);
         
-        repeat(5) @(posedge clk); 
+        @(negedge clk);
+        tb_rfd = 1'b1;
+        repeat (NUM_SAMPLES - GAP_AT) @(posedge clk);
+    
+        @(negedge clk);
+        tb_rfd = 1'b0;
+        repeat (5) @(posedge clk);
         $stop;
     end
 endmodule
