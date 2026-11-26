@@ -5,6 +5,7 @@ lab12.sim/
 lab12.ip_user_files/
 lab12.runs/
 lab12.gen/
+build/
 
 # На случай, если создашь другие проекты, используем маски
 *.cache/

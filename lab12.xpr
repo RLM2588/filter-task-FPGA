@@ -89,8 +89,10 @@
   <FileSets Version="1" Minor="32">
     <FileSet Name="sources_1" Type="DesignSrcs" RelSrcDir="$PSRCDIR/sources_1" RelGenDir="$PGENDIR/sources_1">
       <Filter Type="Srcs"/>
-      <File Path="$PPRDIR/../FPGA_Library/DELAY/sources_1/delay.sv">
+      <File Path="$PSRCDIR/sources_1/imports/sources_1/delay.sv">
         <FileInfo>
+          <Attr Name="ImportPath" Val="$PPRDIR/../FPGA_Library/DELAY/sources_1/delay.sv"/>
+          <Attr Name="ImportTime" Val="1795559905"/>
           <Attr Name="UsedIn" Val="synthesis"/>
           <Attr Name="UsedIn" Val="implementation"/>
           <Attr Name="UsedIn" Val="simulation"/>
